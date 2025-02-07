@@ -16,11 +16,11 @@ public class ListResponse<T> {
 
     public <E> ListResponse(List<T> content, Page<E> page) {
         this.content = content;
-        this.page = 0;
-        this.size = 0;
-        this.totalElements = 0;
-        this.totalPages = 0;
-        this.last = false;
+        this.page = page.getNumber() + 1;
+        this.size = page.getSize();
+        this.totalElements = (int) page.getTotalElements();
+        this.totalPages = page.getTotalPages();
+        this.last = page.isLast();
     }
 
     public static <T, E> ListResponse<T> of(List<T> content, Page<E> page) {

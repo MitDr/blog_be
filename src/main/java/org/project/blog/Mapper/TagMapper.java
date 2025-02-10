@@ -10,4 +10,5 @@ import org.springframework.stereotype.Component;
 @Component
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface TagMapper extends GenericMapper<Tag, TagRequest, TagResponse> {
+    
 }

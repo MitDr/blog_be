@@ -30,6 +30,7 @@ public class User {
     private String avatar_url;
     @Column(name = "user_created_at")
     private Date created_at;
-
+    @Column(name = "user_update_at")
+    private Date update_at;
 
 }

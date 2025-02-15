@@ -21,5 +21,9 @@ public interface SearchFields {
         "content",
         "status"
     );
-
+    List<String> USER = List.of(
+        "username",
+        "email",
+        "role"
+    );
 }

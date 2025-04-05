@@ -5,31 +5,39 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.project.blog.Constant.Enum.ROLE;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "tbl_user")
 public class User {
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(name = "user_name")
+    private long id;
+    @Column(name = "user_name", unique = true)
     private String username;
     @Column(name = "user_password")
     private String password;
-    @Column(name = "user_email")
+    @Column(name = "user_email", unique = true)
     private String email;
     @Column(name = "user_role")
-    private ROLE role;
+    private ROLE role = ROLE.ROLE_USER;
+    @Column(name = "user_refresh_token")
+    private String refreshToken;
     @Column(name = "user_avatar_url")
     private String avatar_url;
-    @Column(name = "user_created_at")
+    @CreatedDate
+    @Column(name = "user_created_at", updatable = false)
     private Date created_at;
+    @LastModifiedDate
     @Column(name = "user_update_at")
     private Date update_at;
 

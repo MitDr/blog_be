@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.project.blog.Constant.Enum.POSTSTATUS;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.util.Date;
 
@@ -24,8 +26,10 @@ public class Post {
     private String content;
     @Column(name = "post_status")
     private POSTSTATUS status;
-    @Column(name = "post_created_at")
+    @CreatedDate
+    @Column(name = "post_created_at", updatable = false)
     private Date created_at;
+    @LastModifiedDate
     @Column(name = "post_updated_at")
     private Date updated_at;
 }

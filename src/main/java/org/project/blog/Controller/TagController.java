@@ -1,6 +1,8 @@
 package org.project.blog.Controller;
 
-public class TagController {
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
+public class TagController {
 
 }

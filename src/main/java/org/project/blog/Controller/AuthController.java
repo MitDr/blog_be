@@ -1,7 +1,9 @@
 package org.project.blog.Controller;
 
 import lombok.RequiredArgsConstructor;
+import org.project.blog.Payload.ClientResponse;
 import org.project.blog.Payload.Request.AuthRequest;
+import org.project.blog.Payload.Request.RefreshRequest;
 import org.project.blog.Payload.Request.UserRequest;
 import org.project.blog.Service.AuthService;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +21,22 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok().body(authService.register(userRequest));
+        return ResponseEntity.ok().body(new ClientResponse(authService.register(userRequest), "Register successfully"));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-        System.out.println(authRequest);
-        return ResponseEntity.ok().body(authService.login(authRequest));
+        return ResponseEntity.ok().body(new ClientResponse(authService.login(authRequest), "Login successfully"));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody RefreshRequest refreshRequest) {
+        return ResponseEntity.ok().body(new ClientResponse(authService.refreshToken(refreshRequest), "Refresh Successfully"));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody RefreshRequest refreshRequest) {
+        authService.logout(refreshRequest);
+        return ResponseEntity.ok().body(new ClientResponse(null, "Logout successfully"));
     }
 }

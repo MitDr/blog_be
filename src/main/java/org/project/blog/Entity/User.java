@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.project.blog.Constant.Enum.ROLE;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,9 +31,8 @@ public class User {
     @Column(name = "user_email", unique = true)
     private String email;
     @Column(name = "user_role")
+    @Enumerated(EnumType.STRING)
     private ROLE role = ROLE.ROLE_USER;
-    @Column(name = "user_refresh_token")
-    private String refreshToken;
     @Column(name = "user_avatar_url")
     private String avatar_url;
     @CreatedDate
@@ -41,4 +42,7 @@ public class User {
     @Column(name = "user_update_at")
     private Date update_at;
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Token> tokens;
 }

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -17,4 +19,6 @@ public class Tag {
     private Long id;
     @Column(name = "tag_name")
     private String name;
+    @Column(name = "tag_create_at", updatable = false)
+    private Date create_at;
 }

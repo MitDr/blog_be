@@ -107,6 +107,7 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>${jjwt.version}</version>
         </dependency>
+
     </dependencies>
 
     <build>

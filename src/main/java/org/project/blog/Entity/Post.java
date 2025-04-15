@@ -25,6 +25,7 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String content;
     @Column(name = "post_status")
+    @Enumerated(EnumType.STRING)
     private POSTSTATUS status;
     @CreatedDate
     @Column(name = "post_created_at", updatable = false)

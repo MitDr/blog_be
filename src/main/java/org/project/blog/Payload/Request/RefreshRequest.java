@@ -12,4 +12,5 @@ public class RefreshRequest {
     private String username;
     private ROLE role;
     private String refreshToken;
+    private String deviceId;
 }

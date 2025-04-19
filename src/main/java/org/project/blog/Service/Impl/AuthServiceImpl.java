@@ -1,5 +1,6 @@
 package org.project.blog.Service.Impl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.project.blog.Constant.Enum.ROLE;
 import org.project.blog.Constant.Enum.TOKENTYPE;
@@ -27,8 +28,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -60,27 +59,34 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse login(AuthRequest authRequest) {
+    public AuthResponse login(AuthRequest authRequest, HttpServletRequest request) {
+
+        User user = userRepository.findByUsername(authRequest.getUsername()).orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (tokenRepository.existsByUserAndDeviceIdAndRevokedFalse(user, authRequest.getDeviceId())) {
+            throw new RuntimeException("This device is already logged in");
+        }
+
         BaseJwtService jwtService = jwtServiceFactory.getService(TOKENTYPE.ACCESS_TOKEN);
         BaseJwtService refreshService = jwtServiceFactory.getService(TOKENTYPE.REFRESH_TOKEN);
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+
         String accessToken, refreshToken;
         Token token;
-        User user;
+
         if (authentication.isAuthenticated()) {
-            user = userRepository.findByUsername(authRequest.getUsername()).orElseThrow(() -> new RuntimeException("This need to change")); //Change this latter
             accessToken = jwtService.generateToken(authRequest.getUsername());
             refreshToken = refreshService.generateToken(authRequest.getUsername());
             AuthResponse response = authMapper.userToAuthResponse(user);
             response.setAccessToken(accessToken);
             response.setRefreshToken(refreshToken);
 
-            //Create token
             token = new Token();
             token.setUser(user);
             token.setValue(refreshToken);
             token.setRevoked(false);
-            token.setCreate_at(new Date());
+            token.setDeviceId(authRequest.getDeviceId());
+            token.setUserAgent(request.getHeader("User-Agent"));
             tokenRepository.save(token);
 
             return response;
@@ -91,52 +97,32 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public RefreshResponse refreshToken(RefreshRequest refreshRequest) {
-        BaseJwtService refreshService = jwtServiceFactory.getService(TOKENTYPE.REFRESH_TOKEN);
+        Token token = tokenRepository.findByValueAndDeviceId(refreshRequest.getRefreshToken(), refreshRequest.getDeviceId()).orElseThrow(() -> new RuntimeException("Token not found"));
+        if (token.isRevoked()) {
+            throw new RuntimeException("Token is revoked");
+        }
+
+        BaseJwtService refreshTokenService = jwtServiceFactory.getService(TOKENTYPE.REFRESH_TOKEN);
         UserDetails userDetails = userDetailsService.loadUserByUsername(refreshRequest.getUsername());
-        // Validate the refresh token
-        if (!refreshService.validateToken(refreshRequest.getRefreshToken(), userDetails)) {
-            throw new RuntimeException("Invalid refresh token");
+        
+        if (!refreshTokenService.isTokenExpired(refreshRequest.getRefreshToken())) {
+            throw new RuntimeException("invalid refresh token");
         }
-
-        // Extract username from the refresh token
-        String username = refreshService.extractUsername(refreshRequest.getRefreshToken());
-        Optional<List<Token>> tokens = tokenRepository.findByUserUsername(username);
-        if (tokens.isEmpty()) {
-            throw new RuntimeException("ok this is for later");
-        } else {
-            for (Token token : tokens.get()) {
-                if (token.getValue().equals(refreshRequest.getRefreshToken()) && !token.isRevoked()) {
-                    break;
-                }
-                throw new RuntimeException("ok this is for later");
-            }
+        if (refreshTokenService.isTokenExpired(refreshRequest.getRefreshToken())) {
+            throw new RuntimeException("Token is expired");
         }
-        // Generate a new access token
-        BaseJwtService accessTokenService = jwtServiceFactory.getService(TOKENTYPE.ACCESS_TOKEN);
-        String newAccessToken = accessTokenService.generateToken(username);
-
-        // Prepare the response
-        RefreshResponse response = new RefreshResponse();
-        response.setAccessToken(newAccessToken);
-        response.setRefreshToken(refreshRequest.getRefreshToken());
-
-        return response;
+        String accessToken = jwtServiceFactory.getService(TOKENTYPE.ACCESS_TOKEN).generateToken(userDetails.getUsername());
+        return new RefreshResponse(accessToken, refreshRequest.getRefreshToken());
     }
 
     @Override
     public void logout(RefreshRequest refreshRequest) {
-        String username = refreshRequest.getUsername();
-        Optional<List<Token>> tokens = tokenRepository.findByUserUsername(username);
-        if (tokens.isEmpty()) {
-            throw new RuntimeException("ok this is for later");
+        Optional<Token> token = tokenRepository.findByValueAndDeviceId(refreshRequest.getRefreshToken(), refreshRequest.getDeviceId());
+        if (token.isPresent()) {
+            token.get().setRevoked(true);
+            tokenRepository.save(token.get());
         } else {
-            for (Token token : tokens.get()) {
-                if (token.getValue().equals(refreshRequest.getRefreshToken()) && !token.isRevoked()) {
-                    token.setRevoked(true);
-                    tokenRepository.saveAll(tokens.get());
-                    return;
-                }
-            }
+            throw new RuntimeException("ok this is for later");
         }
     }
 }

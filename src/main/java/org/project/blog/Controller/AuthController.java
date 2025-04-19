@@ -1,5 +1,6 @@
 package org.project.blog.Controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.project.blog.Payload.ClientResponse;
 import org.project.blog.Payload.Request.AuthRequest;
@@ -25,8 +26,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-        return ResponseEntity.ok().body(new ClientResponse(authService.login(authRequest), "Login successfully"));
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest, HttpServletRequest request) {
+        return ResponseEntity.ok().body(new ClientResponse(authService.login(authRequest, request), "Login successfully"));
     }
 
     @PostMapping("/refresh")

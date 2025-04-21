@@ -30,6 +30,7 @@
         <java.version>17</java.version>
         <java.version>17</java.version>
         <jjwt.version>0.12.5</jjwt.version>
+        <sanitizer.version>20240325.1</sanitizer.version>
     </properties>
     <dependencies>
         <!--        <dependency>-->
@@ -106,6 +107,12 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
             <version>${jjwt.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
+            <artifactId>owasp-java-html-sanitizer</artifactId>
+            <version>${sanitizer.version}</version>
         </dependency>
 
     </dependencies>

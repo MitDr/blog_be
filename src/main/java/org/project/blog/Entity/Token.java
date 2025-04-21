@@ -36,7 +36,7 @@ public class Token {
     private boolean revoked;
     @CreatedDate
     @Column(name = "token_create_at", updatable = false)
-    private Date create_at;
+    private Date created_at;
     @LastModifiedDate
     @Column(name = "token_last_modified_at")
     private Date last_modified_at;

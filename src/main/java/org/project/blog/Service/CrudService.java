@@ -57,14 +57,12 @@ public interface CrudService<ID, I, O> {
 
     default <E> O defaultFindById(ID id, JpaRepository<E, ID> repository, GenericMapper<E, I, O> mapper, String resourceName) {
         E entity = repository.findById(id).orElseThrow(() -> new RuntimeException("???"));
-        System.out.println(entity);
         return mapper.entityToResponse(entity);//Change Exception later
     }
 
     default <E> O defaultSave(I request, JpaRepository<E, ID> repository, GenericMapper<E, I, O> mapper) {
         E entity = mapper.requestToEntity(request);
         entity = repository.save(entity);
-        System.out.println(entity);
         return mapper.entityToResponse(entity);
     }
 

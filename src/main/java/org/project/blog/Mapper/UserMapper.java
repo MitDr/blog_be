@@ -15,7 +15,7 @@ import java.util.List;
 public interface UserMapper extends GenericMapper<User, UserRequest, UserResponse> {
 
     @Override
-    @Mapping(source = "update_at", target = "update_at")
+    @Mapping(source = "updated_at", target = "updated_at")
     @Mapping(source = "created_at", target = "created_at")
     UserResponse entityToResponse(User user);
 

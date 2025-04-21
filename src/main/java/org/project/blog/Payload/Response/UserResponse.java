@@ -19,7 +19,7 @@ public class UserResponse {
     private ROLE role;
     private String avatar_url;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss dd-MM-yyyy", timezone = "Asia/Ho_Chi_Minh")
-    private Date update_at;
+    private Date updated_at;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss dd-MM-yyyy", timezone = "Asia/Ho_Chi_Minh")
     private Date created_at;
 }

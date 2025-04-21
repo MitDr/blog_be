@@ -10,6 +10,7 @@ import org.project.blog.Payload.Response.ListResponse;
 import org.project.blog.Payload.Response.PostResponse;
 import org.project.blog.Repository.PostRepository;
 import org.project.blog.Service.PostService;
+import org.project.blog.Ultis.SanitizerUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class PostImpl implements PostService {
 
     @Override
     public PostResponse save(PostRequest request) {
+        request.setContent(SanitizerUtils.sanitize(request.getContent()));
         return defaultSave(request, postRepository, postMapper);
     }
 

@@ -26,5 +26,5 @@ public class Media {
     private String type;
     @CreatedDate
     @Column(name = "media_create_at", updatable = false)
-    private Date create_at;
+    private Date created_at;
 }

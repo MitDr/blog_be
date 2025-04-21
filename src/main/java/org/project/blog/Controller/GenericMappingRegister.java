@@ -7,11 +7,9 @@ import org.project.blog.Constant.ResourceName;
 import org.project.blog.Constant.SearchFields;
 import org.project.blog.Entity.Category;
 import org.project.blog.Entity.Media;
-import org.project.blog.Entity.Post;
 import org.project.blog.Entity.Tag;
 import org.project.blog.Mapper.CategoryMapper;
 import org.project.blog.Mapper.MediaMapper;
-import org.project.blog.Mapper.PostMapper;
 import org.project.blog.Mapper.TagMapper;
 import org.project.blog.Payload.Request.CategoryRequest;
 import org.project.blog.Payload.Request.MediaRequest;
@@ -23,10 +21,10 @@ import org.project.blog.Payload.Response.PostResponse;
 import org.project.blog.Payload.Response.TagResponse;
 import org.project.blog.Repository.CategoryRepository;
 import org.project.blog.Repository.MediaRepository;
-import org.project.blog.Repository.PostRepository;
 import org.project.blog.Repository.TagRepository;
 import org.project.blog.Service.CrudService;
 import org.project.blog.Service.GenericService;
+import org.project.blog.Service.PostService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -53,7 +51,9 @@ public class GenericMappingRegister {
     private final GenericService<Tag, TagRequest, TagResponse> tagService;
     private final GenericService<Category, CategoryRequest, CategoryResponse> categoryService;
     private final GenericService<Media, MediaRequest, MediaResponse> mediaService;
-    private final GenericService<Post, PostRequest, PostResponse> postService;
+
+    private final PostService postService;
+//    private final GenericService<Post, PostRequest, PostResponse> postService;
 
 
     @PostConstruct
@@ -84,12 +84,13 @@ public class GenericMappingRegister {
         ), MediaRequest.class);
 
         //Posts
-        register("posts", postController, postService.init(
-                context.getBean(PostRepository.class),
-                context.getBean(PostMapper.class),
-                SearchFields.POST,
-                ResourceName.POST
-        ), PostRequest.class);
+        register("posts", postController, postService, PostRequest.class);
+//        register("posts", postController, postService.init(
+//                context.getBean(PostRepository.class),
+//                context.getBean(PostMapper.class),
+//                SearchFields.POST,
+//                ResourceName.POST
+//        ), PostRequest.class);
     }
 
 
@@ -159,7 +160,7 @@ public class GenericMappingRegister {
                 controller,
                 controller.getClass().getMethod("deleteResource", long.class)
         );
-        
+
         handlerMapping.registerMapping(
                 RequestMappingInfo
                         .paths("/api/v1/" + resource)

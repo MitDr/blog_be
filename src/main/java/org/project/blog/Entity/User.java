@@ -40,7 +40,7 @@ public class User {
     private Date created_at;
     @LastModifiedDate
     @Column(name = "user_update_at")
-    private Date update_at;
+    private Date updated_at;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

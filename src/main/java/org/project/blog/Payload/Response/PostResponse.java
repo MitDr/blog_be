@@ -18,7 +18,7 @@ public class PostResponse {
     private String content;
     private POSTSTATUS status;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss dd-MM-yyyy", timezone = "Asia/Ho_Chi_Minh")
-    private Date create_at;
+    private Date created_at;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss dd-MM-yyyy", timezone = "Asia/Ho_Chi_Minh")
-    private Date update_at;
+    private Date updated_at;
 }

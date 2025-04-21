@@ -1,9 +1,12 @@
 package org.project.blog.Payload.Response;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -11,4 +14,6 @@ import lombok.NoArgsConstructor;
 public class TagResponse {
     private long id;
     private String name;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss dd-MM-yyyy", timezone = "Asia/Ho_Chi_Minh")
+    private Date created_at;
 }

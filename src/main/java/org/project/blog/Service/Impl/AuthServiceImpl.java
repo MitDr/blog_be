@@ -104,9 +104,8 @@ public class AuthServiceImpl implements AuthService {
 
         BaseJwtService refreshTokenService = jwtServiceFactory.getService(TOKENTYPE.REFRESH_TOKEN);
         UserDetails userDetails = userDetailsService.loadUserByUsername(refreshRequest.getUsername());
-        
-        if (!refreshTokenService.isTokenExpired(refreshRequest.getRefreshToken())) {
-            throw new RuntimeException("invalid refresh token");
+        if (!refreshTokenService.validateToken(refreshRequest.getRefreshToken(), userDetails)) {
+            throw new RuntimeException("Token is invalid");
         }
         if (refreshTokenService.isTokenExpired(refreshRequest.getRefreshToken())) {
             throw new RuntimeException("Token is expired");

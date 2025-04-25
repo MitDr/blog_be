@@ -1,18 +1,20 @@
 package org.project.blog.Payload.Response;
 
-import lombok.Value;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-@Value
+@Data
+@NoArgsConstructor
 public class ListResponse<T> {
-    List<T> content;
-    int page;
-    int size;
-    int totalElements;
-    int totalPages;
-    boolean last;
+    private List<T> content;
+    private int page;
+    private int size;
+    private int totalElements;
+    private int totalPages;
+    private boolean last;
 
     public <E> ListResponse(List<T> content, Page<E> page) {
         this.content = content;

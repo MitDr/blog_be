@@ -15,5 +15,6 @@ public interface PostMapper extends GenericMapper<Post, PostRequest, PostRespons
     @Override
     @Mapping(source = "created_at", target = "created_at")
     @Mapping(source = "updated_at", target = "updated_at")
+    @Mapping(source = "user.username", target = "username")
     PostResponse entityToResponse(Post entity);
 }

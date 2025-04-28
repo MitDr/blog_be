@@ -27,7 +27,7 @@ public class Post {
     @Lob
     @Column(columnDefinition = "TEXT")
     private String content;
-    @Column(name = "post_status")
+    @Column(name = "post_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private POSTSTATUS status;
     @CreatedDate
@@ -36,6 +36,10 @@ public class Post {
     @LastModifiedDate
     @Column(name = "post_updated_at")
     private Date updated_at;
+    @Column(name = "post_schedule_at")
+    private Date scheduled_at;
+    @Column(name = "post_publish_at")
+    private Date published_at;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)

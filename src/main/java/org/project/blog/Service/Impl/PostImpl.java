@@ -3,6 +3,7 @@ package org.project.blog.Service.Impl;
 
 import io.github.perplexhub.rsql.RSQLJPASupport;
 import lombok.RequiredArgsConstructor;
+import org.project.blog.Constant.Enum.POSTSTATUS;
 import org.project.blog.Constant.ResourceName;
 import org.project.blog.Constant.SearchFields;
 import org.project.blog.Entity.Post;
@@ -13,6 +14,7 @@ import org.project.blog.Payload.Response.ListResponse;
 import org.project.blog.Payload.Response.PostResponse;
 import org.project.blog.Repository.PostRepository;
 import org.project.blog.Repository.UserRepository;
+import org.project.blog.Service.PostSchedulerService;
 import org.project.blog.Service.PostService;
 import org.project.blog.Specification.PostSpecification;
 import org.project.blog.Ultis.AuthUtils;
@@ -24,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -35,6 +38,8 @@ public class PostImpl implements PostService {
     private final PostRepository postRepository;
 
     private final PostMapper postMapper;
+
+    private final PostSchedulerService postSchedulerService;
 
     @Override
     public ListResponse<PostResponse> findAll(int page, int size, String sort, String filter, String search, boolean all) {
@@ -64,19 +69,24 @@ public class PostImpl implements PostService {
 
     @Override
     public PostResponse save(PostRequest request) {
-        request.setContent(SanitizerUtils.sanitize(request.getContent()));
-        Post post = postMapper.requestToEntity(request);
-
         String username = AuthUtils.getCurrentUser();
         User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("this is for later"));
+        request.setContent(SanitizerUtils.sanitize(request.getContent()));
+        Post post = postMapper.requestToEntity(request);
         post.setUser(user);
-
+        validateAndAssignStatus(post, request);
         Post savedPost = postRepository.save(post);
+        if (post.getStatus() == POSTSTATUS.SCHEDULED) {
+            postSchedulerService.schedulePosts(post);
+        }
         return postMapper.entityToResponse(savedPost);
     }
 
     @Override
     public PostResponse update(Long aLong, PostRequest request) {
+        if (request.getStatus() == POSTSTATUS.SCHEDULED || request.getScheduled_at() != null) {
+            throw new RuntimeException("this is for later");
+        }
         return defaultSave(aLong, request, postRepository, postMapper, ResourceName.POST);
     }
 
@@ -88,5 +98,33 @@ public class PostImpl implements PostService {
     @Override
     public void delete(List<Long> longs) {
         postRepository.deleteAllById(longs);
+    }
+
+    private void validateAndAssignStatus(Post post, PostRequest request) {
+        POSTSTATUS poststatus = request.getStatus();
+        Date now = new Date();
+
+        post.setStatus(poststatus);
+
+        switch (poststatus) {
+            case DRAFT:
+                post.setUpdated_at(null);
+                post.setPublished_at(null);
+                break;
+
+            case PUBLISHED:
+                post.setScheduled_at(null);
+                post.setPublished_at(now);
+                break;
+
+            case SCHEDULED:
+                Date scheduled_at = request.getScheduled_at();
+                if (scheduled_at == null || !scheduled_at.after(now)) {
+                    throw new RuntimeException("This is for later");
+                }
+                post.setPublished_at(null);
+                post.setScheduled_at(scheduled_at);
+                break;
+        }
     }
 }

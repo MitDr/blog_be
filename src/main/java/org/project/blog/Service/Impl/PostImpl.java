@@ -2,18 +2,23 @@ package org.project.blog.Service.Impl;
 
 
 import io.github.perplexhub.rsql.RSQLJPASupport;
+import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.project.blog.Constant.Enum.POSTSTATUS;
+import org.project.blog.Constant.Enum.ROLE;
 import org.project.blog.Constant.ResourceName;
 import org.project.blog.Constant.SearchFields;
 import org.project.blog.Entity.Post;
 import org.project.blog.Entity.User;
 import org.project.blog.Mapper.PostMapper;
 import org.project.blog.Payload.Request.PostRequest;
+import org.project.blog.Payload.Request.RescheduleRequest;
 import org.project.blog.Payload.Response.ListResponse;
 import org.project.blog.Payload.Response.PostResponse;
 import org.project.blog.Repository.PostRepository;
 import org.project.blog.Repository.UserRepository;
+import org.project.blog.Service.GenericService;
 import org.project.blog.Service.PostSchedulerService;
 import org.project.blog.Service.PostService;
 import org.project.blog.Specification.PostSpecification;
@@ -33,6 +38,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostImpl implements PostService {
 
+    private final GenericService<Post, PostRequest, PostResponse> genericService;
+
     private final UserRepository userRepository;
 
     private final PostRepository postRepository;
@@ -40,6 +47,11 @@ public class PostImpl implements PostService {
     private final PostMapper postMapper;
 
     private final PostSchedulerService postSchedulerService;
+
+    @PostConstruct
+    public void init() {
+        genericService.init(postRepository, postMapper, SearchFields.POST, ResourceName.POST);
+    }
 
     @Override
     public ListResponse<PostResponse> findAll(int page, int size, String sort, String filter, String search, boolean all) {
@@ -90,14 +102,26 @@ public class PostImpl implements PostService {
         return defaultSave(aLong, request, postRepository, postMapper, ResourceName.POST);
     }
 
+    @Transactional
     @Override
     public void delete(Long aLong) {
-        postRepository.deleteById(aLong);
+        String username = AuthUtils.getCurrentUser();
+        postSchedulerService.cancelScheduledPosts(aLong);
+        postRepository.deleteByIdAndUser_Username(aLong, username);
+//        genericService.delete(aLong);
+//        postRepository.deleteById(aLong);
     }
 
+    @Transactional
     @Override
     public void delete(List<Long> longs) {
-        postRepository.deleteAllById(longs);
+        String username = AuthUtils.getCurrentUser();
+        for (Long id : longs) {
+            postSchedulerService.cancelScheduledPosts(id);
+        }
+        postRepository.deleteByUser_UsernameAndIdIn(username, longs);
+//        genericService.delete(longs);
+//        postRepository.deleteAllById(longs);
     }
 
     private void validateAndAssignStatus(Post post, PostRequest request) {
@@ -125,6 +149,26 @@ public class PostImpl implements PostService {
                 post.setPublished_at(null);
                 post.setScheduled_at(scheduled_at);
                 break;
+        }
+    }
+
+    @Override
+    public void cancelScheduledPosts(long postId) {
+        String username = AuthUtils.getCurrentUser();
+        if (postRepository.existsByIdAndUser_UsernameAndStatus(postId, username, POSTSTATUS.SCHEDULED) || AuthUtils.hasRole(ROLE.ADMIN)) {
+            postSchedulerService.cancelScheduledPosts(postId);
+        } else {
+            throw new RuntimeException("this is for later");
+        }
+    }
+
+    @Override
+    public void reschedulePosts(long id, RescheduleRequest request) {
+        String username = AuthUtils.getCurrentUser();
+        if (postRepository.existsByIdAndUser_UsernameAndStatus(id, username, POSTSTATUS.SCHEDULED) || AuthUtils.hasRole(ROLE.ADMIN)) {
+            postSchedulerService.reschedulePosts(id, request.getDate());
+        } else {
+            throw new RuntimeException("this is for later");
         }
     }
 }

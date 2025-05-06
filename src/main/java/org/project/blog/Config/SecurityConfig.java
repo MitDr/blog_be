@@ -39,8 +39,9 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.requestMatchers(SecurityConstant.ADMIN_API_PATHS).hasAuthority(SecurityConstant.ROLE.ADMIN))
                 .authorizeHttpRequests(auth -> auth.requestMatchers(SecurityConstant.CLIENT_API_PATHS).hasAuthority(SecurityConstant.ROLE.USER))
+                .authorizeHttpRequests(auth -> auth.requestMatchers(SecurityConstant.AUTHENTICATION_API_PATHS).authenticated())
                 .authorizeHttpRequests(auth -> auth.requestMatchers(SecurityConstant.IGNORE_API_PATHS).permitAll())
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth.anyRequest().denyAll())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())  // Để Spring tự inject

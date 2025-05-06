@@ -12,7 +12,7 @@ public class PostSpecification {
     public static Specification<Post> accessControl() {
         return (root, query, cb) -> {
             String currentUser = AuthUtils.getCurrentUser();
-            boolean isAdmin = AuthUtils.hasRole(ROLE.ROLE_ADMIN);
+            boolean isAdmin = AuthUtils.hasRole(ROLE.ADMIN);
 
             if (isAdmin) {
                 return cb.conjunction();

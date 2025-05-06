@@ -32,7 +32,7 @@ public class User {
     private String email;
     @Column(name = "user_role")
     @Enumerated(EnumType.STRING)
-    private ROLE role = ROLE.ROLE_USER;
+    private ROLE role = ROLE.USER;
     @Column(name = "user_avatar_url")
     private String avatar_url;
     @CreatedDate

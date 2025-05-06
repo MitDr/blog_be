@@ -47,6 +47,10 @@ public class PostSchedulerImpl implements PostSchedulerService {
             scheduledFuture.cancel(false);
             scheduledTask.remove(postId);
         }
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("this is for later"));
+        post.setStatus(POSTSTATUS.DRAFT);
+        post.setScheduled_at(null);
+        postRepository.save(post);
     }
 
     @Override
@@ -61,5 +65,15 @@ public class PostSchedulerImpl implements PostSchedulerService {
             }
         }
         scheduledTask.remove(postId);
+    }
+
+    @Override
+    public void reschedulePosts(long id, Date date) {
+        cancelScheduledPosts(id);
+        Post post = postRepository.findById(id).orElseThrow(() -> new RuntimeException("this is for later"));
+        post.setScheduled_at(date);
+        post.setStatus(POSTSTATUS.SCHEDULED);
+        schedulePosts(post);
+        postRepository.save(post);
     }
 }

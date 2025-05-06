@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse register(UserRequest userRequest) {
         User user = authMapper.userRequestToUser(userRequest);
         user.setPassword(encoder.encode(userRequest.getPassword()));
-        user.setRole(ROLE.ROLE_USER);
+        user.setRole(ROLE.USER);
         userRepository.save(user);
 
         return userMapper.entityToResponse(user);

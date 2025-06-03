@@ -3,6 +3,7 @@ package org.project.blog.Service.Impl;
 
 import io.github.perplexhub.rsql.RSQLJPASupport;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.project.blog.Constant.Enum.POSTSTATUS;
@@ -25,10 +26,13 @@ import org.project.blog.Specification.PostSpecification;
 import org.project.blog.Ultis.AuthUtils;
 import org.project.blog.Ultis.SanitizerUtils;
 import org.project.blog.Ultis.SearchUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -37,6 +41,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class PostImpl implements PostService {
+    private static final Logger logger = LoggerFactory.getLogger(PostImpl.class);
 
     private final GenericService<Post, PostRequest, PostResponse> genericService;
 
@@ -79,6 +84,8 @@ public class PostImpl implements PostService {
         return postMapper.entityToResponse(post);
     }
 
+    @Transactional
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Override
     public PostResponse save(PostRequest request) {
         String username = AuthUtils.getCurrentUser();
@@ -91,9 +98,11 @@ public class PostImpl implements PostService {
         if (post.getStatus() == POSTSTATUS.SCHEDULED) {
             postSchedulerService.schedulePosts(post);
         }
+        logger.info("Post: {}", post);
         return postMapper.entityToResponse(savedPost);
     }
 
+    @Transactional
     @Override
     public PostResponse update(Long aLong, PostRequest request) {
         if (request.getStatus() == POSTSTATUS.SCHEDULED || request.getScheduled_at() != null) {
@@ -171,4 +180,5 @@ public class PostImpl implements PostService {
             throw new RuntimeException("this is for later");
         }
     }
+
 }

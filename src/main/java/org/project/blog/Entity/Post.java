@@ -41,6 +41,9 @@ public class Post {
     @Column(name = "post_publish_at")
     private Date published_at;
 
+    @Version
+    @Column(name = "post_version")
+    private long version;
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

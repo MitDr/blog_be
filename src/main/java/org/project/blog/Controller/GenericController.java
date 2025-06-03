@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.annotation.Nullable;
 import lombok.Setter;
 import org.project.blog.Constant.AppConstant;
-import org.project.blog.Payload.Response.ListResponse;
 import org.project.blog.Service.CrudService;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,7 @@ public class GenericController<I, O> {
 
     private Class<I> requestType;
 
-    public ResponseEntity<ListResponse<O>> getAllResource(
+    public ResponseEntity<?> getAllResource(
             @RequestParam(name = "page", defaultValue = AppConstant.DEFAULT_PAGE_NUMBER) int page,
             @RequestParam(name = "size", defaultValue = AppConstant.DEFAULT_PAGE_SIZE) int size,
             @RequestParam(name = "sort", defaultValue = AppConstant.DEFAULT_SORT) String sort,

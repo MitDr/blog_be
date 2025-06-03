@@ -60,7 +60,9 @@ public class GenericMappingRegister {
         //PUBLIC
         register("public", "posts", postController, postService, PostRequest.class, true, false, false, false);
 
+
         //ADMIN
+        
         //USER
 
 //        register("admin", "posts", postController, postService, PostRequest.class, true, true, true, true);

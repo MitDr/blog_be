@@ -21,9 +21,9 @@ import java.util.List;
 public class MediaImpl implements MediaService {
     private final GenericService<Media, MediaRequest, MediaResponse> genericService;
 
-    private MediaRepository mediaRepository;
+    private final MediaRepository mediaRepository;
 
-    private MediaMapper mediaMapper;
+    private final MediaMapper mediaMapper;
 
     @PostConstruct
     public void init() {

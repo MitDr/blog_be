@@ -8,5 +8,4 @@ public interface PostService extends CrudService<Long, PostRequest, PostResponse
     void cancelScheduledPosts(long postId);
 
     void reschedulePosts(long id, RescheduleRequest request);
-
 }
